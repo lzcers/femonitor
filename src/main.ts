@@ -1,33 +1,3 @@
-interface Msg {
-    type: string
-    date: number
-    url: string
-    content: string
-}
-
-interface $ {
-    emit(msg: Msg): boolean
-}
-interface EventHub {
-    mount(monitor: MonitorFunc, name: string): boolean
-    emit(msg: Msg, from: string): boolean
-}
-
-interface MonitorFunc {
-    ($: $): void
-}
-
-const mo1 = ($: $) => {
-    setInterval(() => {
-        $.emit({
-            type: 'test',
-            date: new Date().getTime(),
-            url: 'test',
-            content: 'test'
-        })
-    }, 1000)
-}
-
 class EHub implements EventHub {
     plugins: Map<string, MonitorFunc> = new Map()
     // 运行插件，并把插件存到 plugins 里面
@@ -37,9 +7,13 @@ class EHub implements EventHub {
     mount(monitor: MonitorFunc, name: string): boolean {
         try {
             this.plugins.set(name, monitor)
-            monitor({
-                emit: (msg: Msg): boolean => this.emit(msg, name)
-            })
+            // 异步跑去吧，避免堵塞
+            setTimeout(
+                monitor({
+                    emit: (msg: Msg): boolean => this.emit(msg, name)
+                }),
+                0
+            )
         } catch (err) {
             console.log('插件加载失败: ' + err)
             return false
@@ -52,7 +26,3 @@ class EHub implements EventHub {
         return false
     }
 }
-
-const hub = new EHub()
-hub.mount(mo1, 'testPlugin')
-hub.mount(mo1, 'xxxPlugin')
