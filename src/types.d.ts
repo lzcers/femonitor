@@ -1,8 +1,8 @@
 interface Msg {
     type: string
     date: number
-    url: string
-    content: string
+    source: string
+    content: any
 }
 
 interface $ {

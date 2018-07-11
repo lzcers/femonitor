@@ -4,6 +4,7 @@
     "description": "",
     "main": "main.ts",
     "scripts": {
+        "watch": "tsc -w",
         "dev": "tsc && node dist/main.js"
     },
     "author": "Zack",
