@@ -8,22 +8,22 @@
 function jsError($: $) {
     // 备份原有的 errorHandler
     const errHandler = window.onerror
-    window.onerror = function(message, source, lineno, colno, error) {
+    window.onerror = function(message: string, source, lineno, colno, error) {
+        let msg = ''
         const errInfo = {
             message, // 包含了所发生错误的描述信息
             lineno, // 发生错误的行号（数字）
             colno, //发生错误的列号（数字）
-            source, // 发生错误的脚本URL（字符串）
-            error // Error对象（对象）
+            source // 发生错误的脚本URL（字符串）
         }
         // 如果 error 非空且有错误堆栈
         // 没有堆栈信息还能递归 arguments.callee.caller 拿
         if (error && error.stack) {
             // 格式化堆栈信息
+            msg = error.message + '\n ' + error.stack
         } else if (!!arguments.callee) {
             //尝试通过callee拿堆栈信息
-            let msg = '',
-                f = arguments.callee.caller,
+            let f = arguments.callee.caller,
                 c = 3
             // 抓三层
             while (f && --c > 0) {
@@ -34,12 +34,18 @@ function jsError($: $) {
         }
         // 发送给 EventHub， 不一定会上报
         // 没有 source 报错没意义，报了也不知道错在哪
-        if (!source) {
+        // 跨域的 script error 也救不了
+        // 随机上报（抽样上报）取 0.314 即 31.4%
+        if (
+            source &&
+            !message.toLowerCase().includes('script error') &&
+            Math.random() <= 0.314
+        ) {
             $.emit({
-                type: 'jserr',
+                type: 'jsErr',
                 date: new Date().getTime(),
                 source: errInfo.source,
-                content: errInfo
+                content: { ...errInfo, msg }
             })
         }
         // 再调用原有的 onerror 处理
