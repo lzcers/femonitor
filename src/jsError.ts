@@ -5,7 +5,7 @@
 // 2. 当然，也可以参考 badjs 对所有已知的非同源函数入口做切面包裹 try cath 参考 https://github.com/BetterJS/badjs-report/issues/3
 // 3. 对于使用 webpack 等打包工具的代码可以尝试编写 babeljs 或者 webpack 插件自动加 try catch (try catch 可能影响编译器优化影响性能)
 
-function jsError($: $) {
+export default function jsError($: $) {
     // 备份原有的 errorHandler
     const errHandler = window.onerror
     window.onerror = function(message: string, source, lineno, colno, error) {
@@ -13,8 +13,7 @@ function jsError($: $) {
         const errInfo = {
             message, // 包含了所发生错误的描述信息
             lineno, // 发生错误的行号（数字）
-            colno, //发生错误的列号（数字）
-            source // 发生错误的脚本URL（字符串）
+            colno //发生错误的列号（数字）
         }
         // 如果 error 非空且有错误堆栈
         // 没有堆栈信息还能递归 arguments.callee.caller 拿
@@ -44,11 +43,24 @@ function jsError($: $) {
             $.emit({
                 type: 'jsErr',
                 date: new Date().getTime(),
-                source: errInfo.source,
+                source,
                 content: { ...errInfo, msg }
             })
         }
         // 再调用原有的 onerror 处理
         errHandler && errHandler.apply(this, arguments)
     }
+    // promise reject 未处理的异常
+    window.addEventListener('unhandledrejection', function(err) {
+        if (Math.random() <= 0.314) {
+            $.emit({
+                type: 'unhandledrejection',
+                date: new Date().getTime(),
+                source: window.location.href,
+                content: {
+                    reason: err.reason
+                }
+            })
+        }
+    })
 }

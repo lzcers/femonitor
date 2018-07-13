@@ -6,20 +6,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>test</title>
+    <script src="./main.bundle.js"></script>
 </head>
 
 <body>
-
+    <img src="./dist/dddd.png" alt="">
 </body>
-<script src="./dist/main.js"></script>
-<script src="./dist/jsError.js"></script>
-<script src="./dist/perf.js"></script>
-<script>
-    var e = new EHub()
-    e.mount(jsError, 'jsError')
-    e.mount(perf, 'perf')
-</script>
 <script src="./dist/test.js"></script>
 <script src="./dist/test2.js"></script>
+<script>
+    new Promise((resolve, reject) => {
+        reject({ a: '1' })
+        // throw 'eee'
+    })
+</script>
 
 </html>

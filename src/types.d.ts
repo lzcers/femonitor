@@ -7,7 +7,6 @@ interface Msg {
 
 interface Log extends Msg {
     id: number
-    from: string
     userAgent: string
     lang: string
 }
@@ -27,4 +26,13 @@ interface MonitorFunc {
 
 interface Window {
     chrome: any
+}
+
+interface EventTarget {
+    currentSrc: string
+    localName: string
+}
+
+interface Event {
+    reason: string
 }
