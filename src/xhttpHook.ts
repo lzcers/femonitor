@@ -4,12 +4,16 @@ function xhttpHook($: $) {
         ajaxEndTime = 0
     const _realXML = XMLHttpRequest
     XMLHttpRequest = function() {
-        this.xhr = new XMLHttpRequest()
+        this.xhr = new _realXML()
         // 拷贝 XMLHttpRequest 的所有属性
         // 不能用扩展运算符拷贝，因为不会遍历到继承的属性
         for (let attr in this.xhr) {
-            this[attr] = this.xhr[attr]
+            this[attr] =
+                typeof this.xhr[attr] == 'function'
+                    ? this.xhr[attr].bind(this.xhr)
+                    : this.xhr[attr]
         }
+
         Object.defineProperty(this, 'onreadystatechange', {
             set: function(fn) {
                 this.xhr.onreadystatechange = function() {
