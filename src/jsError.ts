@@ -37,7 +37,7 @@ export default function jsError($: $) {
         // 随机上报（抽样上报）取 0.314 即 31.4%
         if (
             source &&
-            !message.toLowerCase().includes('script error') &&
+            !(message.toLowerCase().indexOf('script error') > -1) &&
             Math.random() <= 0.314
         ) {
             $.emit({

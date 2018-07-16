@@ -1,7 +1,7 @@
 export default class EHub implements EventHub {
     logs: Log[] = []
     reportUrl: string = 'monitor.ftoul.com'
-    repProcess: number
+    repProcess = null
     // 运行插件，并把插件存到 plugins 里面
     // todo: 同一个插件不让挂载多次
     mount(monitor: MonitorFunc): boolean {
