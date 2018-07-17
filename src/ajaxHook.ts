@@ -1,9 +1,11 @@
+// 覆写 XMLHttpRequest , Fetch 来劫持 ajax 操作
 export default function ajaxHook($: $) {
     // 记录接口请求开始结束
     let ajaxStartTime = 0,
         ajaxEndTime = 0,
         ajaxMethod = '',
         ajaxUrl = '',
+        ajaxStatus = 0,
         ajaxStatusText = ''
     const _realXML = XMLHttpRequest
     const _fetch = window.fetch
@@ -36,7 +38,6 @@ export default function ajaxHook($: $) {
         function hookSet(attr) {
             if (attr == 'onreadystatechange') {
                 return function(fn) {
-                    debugger
                     this.xhr.onreadystatechange = function() {
                         setTimeout(function() {
                             hookXHR.call(this)
@@ -44,6 +45,9 @@ export default function ajaxHook($: $) {
                         }, 0)
                     }
                 }
+            }
+            return function(f) {
+                this.xhr[attr] = f
             }
         }
     } as any
@@ -58,6 +62,8 @@ export default function ajaxHook($: $) {
             .apply(this, args)
             .then(res => {
                 ajaxEndTime = new Date().getTime()
+                ajaxStatus = res.status
+                if (res.status >= 400) errorReport()
                 return res
             })
             .catch(err => {
@@ -67,7 +73,6 @@ export default function ajaxHook($: $) {
             })
     }
     function hookXHR() {
-        debugger
         switch (this.readyState) {
             // open() 方法已经调用
             case 1:
@@ -76,6 +81,7 @@ export default function ajaxHook($: $) {
             // 请求完成
             case 4:
                 ajaxEndTime = new Date().getTime()
+                ajaxStatus = this.status
                 // 超时上报
                 timeoutReport()
                 if (this.status >= 400) {
@@ -95,6 +101,7 @@ export default function ajaxHook($: $) {
                 content: {
                     method: ajaxMethod,
                     url: ajaxUrl,
+                    status: ajaxStatus,
                     time: ajaxEndTime - ajaxStartTime
                 }
             })
@@ -107,6 +114,7 @@ export default function ajaxHook($: $) {
             content: {
                 method: ajaxMethod,
                 url: ajaxUrl,
+                status: ajaxStatus,
                 statusText: ajaxStatusText
             }
         })
