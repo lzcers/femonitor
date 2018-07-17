@@ -8,30 +8,36 @@ function xhttpHook($: $) {
         // 拷贝 XMLHttpRequest 的所有属性
         // 不能用扩展运算符拷贝，因为不会遍历到继承的属性
         for (let attr in this.xhr) {
-            this[attr] =
-                typeof this.xhr[attr] == 'function'
+            Object.defineProperty(this, attr, {
+                set: hookSet(attr),
+                get: hookGet(attr)
+            })
+        }
+        function hookGet(attr) {
+            return function() {
+                return typeof this.xhr[attr] == 'function'
                     ? this.xhr[attr].bind(this.xhr)
                     : this.xhr[attr]
+            }
         }
-
-        Object.defineProperty(this, 'onreadystatechange', {
-            set: function(fn) {
-                this.xhr.onreadystatechange = function() {
-                    switch (this.xhr.readyState) {
-                        // open() 方法已经调用
-                        case 1:
-                            console.log('a1')
-                            ajaxStartTime = new Date().getTime()
-                            break
-                        // 请求完成
-                        case 4:
-                            console.log('a2')
-                            ajaxEndTime = new Date().getTime()
-                            break
+        function hookSet(attr) {
+            if (attr == 'onreadystatechange') {
+                return function(fn) {
+                    this.xhr.onreadystatechange = function() {
+                        switch (this.readyState) {
+                            // open() 方法已经调用
+                            case 1:
+                                ajaxStartTime = new Date().getTime()
+                                break
+                            // 请求完成
+                            case 4:
+                                ajaxEndTime = new Date().getTime()
+                                break
+                        }
+                        fn.apply(this, arguments)
                     }
-                    fn.apply(this.xhr, arguments)
                 }
             }
-        })
+        }
     } as any
 }
