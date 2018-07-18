@@ -8,6 +8,7 @@ interface Msg {
 interface Log extends Msg {
     id: number
     userAgent: string
+    platform: string
     lang: string
 }
 

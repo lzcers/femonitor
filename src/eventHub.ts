@@ -23,6 +23,7 @@ export default class EHub implements EventHub {
         this.logs.push({
             id: msg.date + Math.floor(Math.random() * 100000),
             userAgent: navigator.userAgent || '',
+            platform: navigator.platform || '',
             lang: navigator.language || '',
             ...msg
         })
