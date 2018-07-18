@@ -34,9 +34,31 @@ export default class EHub implements EventHub {
     // 通过图片上报数据（可跨域）
     reportToServerByImg() {
         // todo: 日志太多分片上传
-        const error = JSON.stringify(this.logs)
-        const img = new Image()
-        img.src = this.reportUrl + '?m=' + error
+        let slice = []
+        let sliceLength = 0
+        this.logs.forEach(log => {
+            // 分片小于 1000 个字符
+            if (sliceLength < 1000) {
+                slice.push(log)
+                sliceLength += JSON.stringify(log).length
+            }
+            // 大于 1000 就发送一波
+            else {
+                const error = JSON.stringify(slice)
+                const img = new Image()
+                img.src = this.reportUrl + '?m=' + error
+                slice = []
+                sliceLength = 0
+            }
+        })
+        // 发送最后一组
+        if (slice.length) {
+            const error = JSON.stringify(slice)
+            const img = new Image()
+            img.src = this.reportUrl + '?m=' + error
+            slice = []
+            sliceLength = 0
+        }
         // 完了清空 logs 队列
         this.logs = []
     }
