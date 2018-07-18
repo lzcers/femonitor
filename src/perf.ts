@@ -31,7 +31,7 @@ export default function perf($: $) {
             }
             $.emit({
                 type: 'perf',
-                date: new Date().getTime(),
+                date: Date.now(),
                 source: location.href,
                 content: perfInfo
             })

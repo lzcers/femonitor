@@ -7,7 +7,7 @@ export default function resource($: $) {
             if (err.target == window) return
             const errInfo = {
                 type: 'resource',
-                date: new Date().getTime(),
+                date: Date.now(),
                 source: err.target.currentSrc,
                 content: {
                     class: err.target.localName,
