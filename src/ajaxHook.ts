@@ -57,11 +57,11 @@ export default function ajaxHook($: $) {
         const options = args[1]
         if (typeof options == 'object') ajaxMethod = options['method']
         else ajaxMethod = 'GET'
-        ajaxStartTime = new Date().getTime()
+        ajaxStartTime = Date.now()
         return _fetch
             .apply(this, args)
             .then(res => {
-                ajaxEndTime = new Date().getTime()
+                ajaxEndTime = Date.now()
                 ajaxStatus = res.status
                 if (res.status >= 400) errorReport()
                 return res
@@ -76,11 +76,11 @@ export default function ajaxHook($: $) {
         switch (this.readyState) {
             // open() 方法已经调用
             case 1:
-                ajaxStartTime = new Date().getTime()
+                ajaxStartTime = Date.now()
                 break
             // 请求完成
             case 4:
-                ajaxEndTime = new Date().getTime()
+                ajaxEndTime = Date.now()
                 ajaxStatus = this.status
                 // 超时上报
                 timeoutReport()
@@ -96,7 +96,7 @@ export default function ajaxHook($: $) {
         if (ajaxEndTime - ajaxStartTime > time)
             $.emit({
                 type: 'ajaxTimeout',
-                date: new Date().getTime(),
+                date: Date.now(),
                 source: window.location.href,
                 content: {
                     method: ajaxMethod,
@@ -109,7 +109,7 @@ export default function ajaxHook($: $) {
     function errorReport() {
         $.emit({
             type: 'ajaxError',
-            date: new Date().getTime(),
+            date: Date.now(),
             source: window.location.href,
             content: {
                 method: ajaxMethod,

@@ -42,7 +42,7 @@ export default function jsError($: $) {
         ) {
             $.emit({
                 type: 'jsErr',
-                date: new Date().getTime(),
+                date: Date.now(),
                 source,
                 content: { ...errInfo, msg }
             })
@@ -55,7 +55,7 @@ export default function jsError($: $) {
         if (Math.random() <= 0.314) {
             $.emit({
                 type: 'unhandledrejection',
-                date: new Date().getTime(),
+                date: Date.now(),
                 source: window.location.href,
                 content: {
                     reason: err.reason
